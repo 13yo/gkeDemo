@@ -1,0 +1,15 @@
+gcloud container clusters list
+
+kubectl create deployment hello-app --image=us-docker.pkg.dev/google-samples/containers/gke/hello-app:2.0
+
+kubectl expose deployment hello-app --name=hello-app-service --type=LoadBalancer --port 80 --target-port 8080   
+
+kubectl scale deployment hello-app --replicas=3
+
+# Demo scenario rollout
+
+kubectl set image deployment.app/helloweb hello-app=us-docker.pkg.dev/google-samples/containers/gke/hello-app-tls:2.0
+
+kubectl rollout status deployments.app/helloweb
+
+kubectl set image deployment.app/helloweb hello-app=us-docker.pkg.dev/google-samples/containers/gke/hello-app-tls:1.0

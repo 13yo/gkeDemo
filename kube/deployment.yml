@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: hello
+  name: helloweb
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: hello
+      tier: web
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: hello
+        tier: web
+    spec:
+      containers:
+      - env:
+        - name: TLS_CERT
+          value: /etc/tls/tls.crt
+        - name: TLS_KEY
+          value: /etc/tls/tls.key
+        image: us-docker.pkg.dev/google-samples/containers/gke/hello-app-tls:1.0
+        imagePullPolicy: Always
+        name: hello-app
+        ports:
+        - containerPort: 8443
+          protocol: TCP
+        resources: {}
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        volumeMounts:
+        - mountPath: /etc/tls
+          name: tls
+          readOnly: true
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+      volumes:
+      - name: tls
+        secret:
+          defaultMode: 420
+          secretName: yourdomain-tls
